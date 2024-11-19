@@ -8,7 +8,7 @@
 #define usuariofile "USUARIO.txt"
 #define criptofile "cripto.txt"
 
-void cadastraradmin();
+void cadastraradm();  // Corrigido o nome para cadastraradm
 int loginadm();
 
 void menuadm();
@@ -29,11 +29,14 @@ int main() {
     printf("2. Login\n");
     printf("3. Sair\n");
     printf("Escolha uma opção: ");
-    scanf("%d", &opcao);
+    if (scanf("%d", &opcao) != 1) {
+        printf("Erro na leitura da opção.\n");
+        continue;  // Ignorar a opção inválida e continuar
+    }
 
     switch (opcao) {
       case 1:
-          cadastraradmin();
+          cadastraradm();
           break;
       case 2:
           if (loginadm()) {
@@ -46,7 +49,7 @@ int main() {
           printf("Saindo do sistema.\n");
           exit(0);
       default:
-          printf("Opção inválida. Tente novamente,\n");
+          printf("Opção inválida. Tente novamente.\n");
     }
   }
   return 0;
@@ -58,19 +61,24 @@ void cadastraradm() {
 
     printf("Cadastro de Administrador: \n");
     printf("Digite o CPF: \n");
-    scanf("%s", cpf);
-    if (strlen(cpf) != 11){
-    printf("CPF inválido. \n");
-    return;
+    if (scanf("%s", cpf) != 1) {
+        printf("Erro na leitura do CPF.\n");
+        return;
+    }
+    if (strlen(cpf) != 11) {
+        printf("CPF inválido. \n");
+        return;
     }
 
     printf("Digite uma senha de 6 dígitos: ");
-    scanf("%s", senha);
+    if (scanf("%s", senha) != 1) {
+        printf("Erro na leitura da senha.\n");
+        return;
+    }
     if (strlen(senha) != 6) {
         printf("Senha inválida. Deve conter 6 dígitos.\n");
         return;
     }
-    
 
     FILE *file = fopen(admfile, "w");
     if (file == NULL) {
@@ -100,9 +108,15 @@ int loginadm() {
 
     printf("Login de Administrador: \n");
     printf("Digite seu CPF: ");
-    scanf("%s", cpf);
+    if (scanf("%s", cpf) != 1) {
+        printf("Erro na leitura do CPF.\n");
+        return 0;
+    }
     printf("Digite sua senha: ");
-    scanf("%s", senha);
+    if (scanf("%s", senha) != 1) {
+        printf("Erro na leitura da senha.\n");
+        return 0;
+    }
 
     if (strcmp(cpf, savecpf) == 0 && strcmp(senha, savesenha) == 0) {
         printf("Login bem-sucedido!\n");
@@ -116,15 +130,20 @@ int loginadm() {
 void menuadm() {
     int opcao;
 
-    do{
+    do {
         printf("\n Menu \n");
         printf("1. Cadastrar novo Investidor\n");
         printf("2. Cadastrar nova Criptomoeda\n");
         printf("3. Excluir Investidor\n");
         printf("4. Excluir Criptomoeda\n");
-        printf("5. Sair\n");
+        printf("5. Consultar saldo de um investidor\n");
+        printf("6. Consultar extrado de um investidor\n");
+        printf("7. Sair\n");
         printf("Escolha uma opção: ");
-        scanf("%d", &opcao);
+        if (scanf("%d", &opcao) != 1) {
+            printf("Erro na leitura da opção.\n");
+            continue;  // Ignorar a opção inválida e continuar
+        }
 
         switch (opcao) {
             case 1:
@@ -140,65 +159,98 @@ void menuadm() {
                 excluirmoeda();
                 break;
             case 5:
+                printf("saldo do investidor");
+                break;
+            case 6:
+                printf("extrato do investidor");
+                break;
+            case 7:
                 sair();
                 break;
             default:
                 printf("Opção inválida. Tente novamente.\n");
         }
-    } while (opcao != 5);
+    } while (opcao != 7);
 }
 
 void cadastroinvestidor() {
-    char nome[maxcpf];
-    char cpf[15];
+  char cpf[12];
+  char senha[20];
+  float saldoReais = 0.0;
 
-    printf("Cadastro de novo Investidor: \n");
-    printf("Digite o nome do Investidor: ");
-    scanf("%s", nome);
-    printf("Digite o CPF do Investidor: ");
-    scanf("%s", cpf);
+  printf("Digite o CPF para cadastro (somente números): ");
+  scanf("%11s", cpf);
+  printf("Digite a senha para cadastro: ");
+  scanf("%19s", senha);
 
-    FILE *file = fopen(usuariofile, "a");
-    if (file == NULL) {
-        printf("Erro ao abrir o arquivo de investidores.\n");
-        return;
-    }
-    fprintf(file, "%s %s\n", nome, cpf);
-    fclose(file);
 
-    printf("Investidor cadastrado com sucesso!\n");
+  FILE *file = fopen(usuariofile, "a");
+  if (file == NULL) {
+    printf("Erro ao abrir o arquivo de cadastro.\n");
+    return;
+  }
+
+  //salvando o cpf, senha e saldo
+  fprintf(file, "CPF:%s Senha:%s Saldo:%.2f\n", cpf, senha, saldoReais);
+
+  fclose(file);
+  printf("Cadastro realizado com sucesso!\n");
 }
 
 void cadastromoeda() {
     char nome[20];
-    float valor;
+    float cotacao_inicial, taxa_compra, taxa_venda;
 
     printf("Cadastro de Nova Criptomoeda: \n");
     printf("Digite o nome da Criptomoeda: ");
-    scanf("%s", nome);
-    printf("Digite o valor da Criptomoeda: ");
-    scanf("%f", &valor);
+    if (scanf("%s", nome) != 1) {
+        printf("Erro na leitura do nome da criptomoeda.\n");
+        return;
+    }
+
+    printf("Digite a cotação inicial da Criptomoeda: ");
+    if (scanf("%f", &cotacao_inicial) != 1) {
+        printf("Erro na leitura da cotação inicial.\n");
+        return;
+    }
+
+    printf("Digite a taxa de compra da Criptomoeda: ");
+    if (scanf("%f", &taxa_compra) != 1) {
+        printf("Erro na leitura da taxa de compra.\n");
+        return;
+    }
+
+    printf("Digite a taxa de venda da Criptomoeda: ");
+    if (scanf("%f", &taxa_venda) != 1) {
+        printf("Erro na leitura da taxa de venda.\n");
+        return;
+    }
 
     FILE *file = fopen(criptofile, "a");
     if (file == NULL) {
         printf("Erro ao abrir arquivo de Criptomoedas.\n");
         return;
     }
-    fprintf(file, "%s %.2f\n", nome, valor);
+
+    // Armazenando os dados no arquivo
+    fprintf(file, "%s %.2f %.2f %.2f\n", nome, cotacao_inicial, taxa_compra, taxa_venda);
     fclose(file);
 
     printf("Criptomoeda cadastrada com sucesso!\n");
 }
 
+
 void excluirinvestidor() {
-    char nome[maxcpf];
-    char cpf[15];
-    char nomeremover[maxcpf];
+    char cpf[maxcpf];
+    char cpfremover[maxcpf];
     int encontrado = 0;
 
     printf("Excluir Investidor: \n");
     printf("Digite o nome do investidor que deseja excluir: ");
-    scanf("%s", nomeremover);
+    if (scanf("%s", cpfremover) != 1) {
+        printf("Erro na leitura do CPF.\n");
+        return;
+    }
 
     FILE *file = fopen(usuariofile, "r");
     FILE *temp = fopen("temp.txt", "w");
@@ -208,9 +260,9 @@ void excluirinvestidor() {
         return;
     }
 
-    while (fscanf(file, "%s %s", nome, cpf) != EOF) {
-        if (strcmp(nome, nomeremover) != 0) {
-            fprintf(temp, "%s %s\n", nome, cpf);
+    while (fscanf(file, "%s %s", cpf, cpf) != EOF) {
+        if (strcmp(cpf, cpfremover) != 0) {
+            fprintf(temp, "%s %s\n", cpf, cpf);
         } else {
             encontrado = 1;
         }
@@ -236,7 +288,10 @@ void excluirmoeda() {
 
     printf("Excluir Criptomoeda: \n");
     printf("Digite o nome da Criptomoeda que deseja excluir: ");
-    scanf("%s", nomeremove);
+    if (scanf("%s", nomeremove) != 1) {
+        printf("Erro na leitura do nome da criptomoeda.\n");
+        return;
+    }
 
     FILE *file = fopen(criptofile, "r");
     FILE *temp = fopen("temp.txt", "w");
@@ -247,7 +302,7 @@ void excluirmoeda() {
     }
 
     while (fscanf(file, "%s %f", nome, &valor) != EOF) {
-        if(strcmp(nome, nomeremove) != 0) {
+        if (strcmp(nome, nomeremove) != 0) {
             fprintf(temp, "%s %.2f\n", nome, valor);
         } else {
             encontrado = 1;
@@ -259,7 +314,7 @@ void excluirmoeda() {
     remove(criptofile);
     rename("temp.txt", criptofile);
 
-    if(encontrado) {
+    if (encontrado) {
         printf("Criptomoeda removida com sucesso!\n");
     } else {
         printf("Criptomoeda não encontrada.\n");
